@@ -70,30 +70,30 @@ WATCH_ID_STATUS_NONE=1
 WATCH_ID_STATUS_ERROR=2
 WATCH_ID_STATUS_TIMEOUT=3
 function check_snap_refresh() {
-	local watch_id_file=$SNAP_COMMON/refresh_watch_id
-	local timestamp=$(date +%s)
-	local timeout=$(snapctl get edge-core.refresh-timeout 2>/dev/null || echo 300)
-	local tdiff=0
-	local retval=$WATCH_ID_STATUS_NONE
-	if [ -f "$watch_id_file" ]; then
-		retval=$WATCH_ID_STATUS_TIMEOUT
-		watch_id=$(cat "$watch_id_file")
-		while [ $tdiff -lt $timeout ]; do
-			status=$(curl -sS --unix-socket /run/snapd.socket http://localhost/v2/changes/$watch_id | jq .result.status)
-			[ "$status" = "Done" ] && {
-				retval=$WATCH_ID_STATUS_SUCCESS
-				break
-			}
-			[ "$status" = "Error" ] && {
-				retval=$WATCH_ID_STATUS_ERROR
-				break
-			}
-			sleep 1
-			tdiff=$(($(date +%s) - timestamp))
-		done
-		rm "$watch_id_file" 2>/dev/null
-	fi
-	return $retval
+    local watch_id_file=$SNAP_COMMON/refresh_watch_id
+    local timestamp=$(date +%s)
+    local timeout=$(snapctl get edge-core.refresh-timeout 2>/dev/null || echo 300)
+    local tdiff=0
+    local retval=$WATCH_ID_STATUS_NONE
+    if [ -f "$watch_id_file" ]; then
+        retval=$WATCH_ID_STATUS_TIMEOUT
+        watch_id=$(cat "$watch_id_file")
+        while [ $tdiff -lt $timeout ]; do
+            status=$(curl -sS --unix-socket /run/snapd.socket http://localhost/v2/changes/$watch_id | jq .result.status)
+            [ "$status" = "Done" ] && {
+                retval=$WATCH_ID_STATUS_SUCCESS
+                break
+            }
+            [ "$status" = "Error" ] && {
+                retval=$WATCH_ID_STATUS_ERROR
+                break
+            }
+            sleep 1
+            tdiff=$(($(date +%s) - timestamp))
+        done
+        rm "$watch_id_file" 2>/dev/null
+    fi
+    return $retval
 }
 
 # If the upgrade fails for any reason, we ignore the new user version string
