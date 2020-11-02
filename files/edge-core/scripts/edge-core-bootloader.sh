@@ -85,6 +85,10 @@ function check_snap_refresh() {
 
 echo "Checking for ${UPGRADE_TGZ}"
 if [ -e "${UPGRADE_TGZ}" ]; then
+    if [ -e "${UPGRADE_WORKDIR}" ]; then
+        echo "Deleting old upgrade workdir..."
+        rm -rf "${UPGRADE_WORKDIR}"
+    fi
     echo "Unpacking ${UPGRADE_TGZ}..."
     mkdir -p "${UPGRADE_WORKDIR}"
     tar --no-same-owner -xzf "${UPGRADE_TGZ}" -C "${UPGRADE_WORKDIR}"
@@ -95,7 +99,7 @@ fi
 
 # move into folder and call pre-refresh if exists
 retval=0
-if [ -e "${UPGRADE_WORKDIR}"]; then
+if [ -e "${UPGRADE_WORKDIR}" ]; then
     pushd "${UPGRADE_WORKDIR}"
 
     if [ -x pre-refresh.sh ]; then
